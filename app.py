@@ -1,13 +1,31 @@
 import streamlit as st
+import os
 
 st.set_page_config(
-    page_title="AI Resume Intelligence",
+    page_title="AI Resume Intelligence System",
     page_icon="📄",
     layout="wide"
 )
 
-st.title("AI-Powered Resume Intelligence and Career Recommendation System")
+st.title("AI Resume Intelligence System")
 
-st.success("Development Environment Setup Successful ✅")
+uploaded_file = st.file_uploader(
+    "Upload Resume",
+    type=["pdf"]
+)
 
-st.write("Welcome to the project!")
+if uploaded_file:
+
+    upload_folder = "uploads/resumes"
+
+    os.makedirs(upload_folder, exist_ok=True)
+
+    file_path = os.path.join(upload_folder, uploaded_file.name)
+
+    with open(file_path, "wb") as f:
+        f.write(uploaded_file.getbuffer())
+
+    st.success("Resume uploaded successfully!")
+
+    st.write("Saved at:")
+    st.code(file_path)
