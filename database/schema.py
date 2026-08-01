@@ -15,6 +15,16 @@ def create_tables():
         );
     """)
 
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS resumes(
+            resume_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            original_filename TEXT NOT NULL,
+            stored_filename TEXT NOT NULL,
+            file_path TEXT NOT NULL,
+            upload_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+    """)
+
     conn.commit()
     conn.close()
 
