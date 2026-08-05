@@ -2,6 +2,9 @@ import streamlit as st
 import os
 import uuid
 
+from database.operations import save_resume
+from resume_parser.extractor import extract_text
+
 st.set_page_config(
     page_title="AI Resume Intelligence System",
     page_icon="📄",
@@ -18,28 +21,44 @@ uploaded_file = st.file_uploader(
 if uploaded_file:
 
     upload_folder = "uploads/resumes"
-
     os.makedirs(upload_folder, exist_ok=True)
 
     unique_filename = f"{uuid.uuid4()}.pdf"
 
     file_path = os.path.join(
-    upload_folder,
-    unique_filename
+        upload_folder,
+        unique_filename
     )
 
-    from database.operations import save_resume
+    # Save PDF first
+    with open(file_path, "wb") as f:
+        f.write(uploaded_file.getbuffer())
+
+    # Save metadata
     save_resume(
         uploaded_file.name,
         unique_filename,
         file_path
     )
 
-    with open(file_path, "wb") as f:
-        f.write(uploaded_file.getbuffer())
+    # Extract text
+    resume_text = extract_text(file_path)
 
     st.success("Resume uploaded and saved successfully!")
 
     st.write("Original Filename:", uploaded_file.name)
     st.write("Stored Filename:", unique_filename)
     st.code(file_path)
+
+    if resume_text.strip():
+
+        st.subheader("Extracted Resume Text")
+
+        st.text_area(
+            "Resume Content",
+            resume_text,
+            height=350
+        )
+
+    else:
+        st.error("No readable text found. The PDF may be scanned.")
