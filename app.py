@@ -4,6 +4,7 @@ import uuid
 
 from database.operations import save_resume
 from resume_parser.extractor import extract_text
+from preprocessing.cleaner import clean_text
 
 st.set_page_config(
     page_title="AI Resume Intelligence System",
@@ -50,6 +51,9 @@ if uploaded_file:
     st.write("Stored Filename:", unique_filename)
     st.code(file_path)
 
+    resume_text = extract_text(file_path)
+    cleaned_text = clean_text(resume_text)
+
     if resume_text.strip():
 
         st.subheader("Extracted Resume Text")
@@ -57,6 +61,13 @@ if uploaded_file:
         st.text_area(
             "Resume Content",
             resume_text,
+            height=350
+        )
+        st.subheader("Cleaned Resume Text")
+
+        st.text_area(
+            "Cleaned Content",
+            cleaned_text,
             height=350
         )
 
