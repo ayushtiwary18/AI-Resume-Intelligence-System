@@ -5,6 +5,7 @@ import uuid
 from database.operations import save_resume
 from resume_parser.extractor import extract_text
 from preprocessing.cleaner import clean_text
+from resume_parser.info_extractor import extract_email, extract_phone
 
 st.set_page_config(
     page_title="AI Resume Intelligence System",
@@ -54,6 +55,9 @@ if uploaded_file:
     resume_text = extract_text(file_path)
     cleaned_text = clean_text(resume_text)
 
+    email = extract_email(resume_text)
+    phone = extract_phone(resume_text)
+
     if resume_text.strip():
 
         st.subheader("Extracted Resume Text")
@@ -70,6 +74,11 @@ if uploaded_file:
             cleaned_text,
             height=350
         )
+
+        st.subheader("Extracted Information")
+
+        st.write("Email:", email if email else "Not Found")
+        st.write("Phone:", phone if phone else "Not Found")
 
     else:
         st.error("No readable text found. The PDF may be scanned.")
