@@ -10,6 +10,7 @@ from resume_parser.info_extractor import (
     extract_phone,
     extract_name
 )
+from resume_parser.skill_extractor import extract_skills
 
 st.set_page_config(
     page_title="AI Resume Intelligence System",
@@ -58,10 +59,12 @@ if uploaded_file:
 
     resume_text = extract_text(file_path)
     cleaned_text = clean_text(resume_text)
+    skills = extract_skills(cleaned_text)
 
     email = extract_email(resume_text)
     phone = extract_phone(resume_text)
     name = extract_name(resume_text)
+    skills = extract_skills(cleaned_text)
 
     if resume_text.strip():
 
@@ -84,7 +87,15 @@ if uploaded_file:
 
         st.write("Name:", name if name else "Not Found")
         st.write("Email:", email if email else "Not Found")
-        st.write("Phone:", phone if phone else "Not Found")         
+        st.write("Phone:", phone if phone else "Not Found")  
+
+        st.subheader("Extracted Skills")
+
+        if skills:
+            for skill in skills:
+                st.write("•", skill.title())
+        else:
+            st.warning("No skills found.")   
 
     else:
         st.error("No readable text found. The PDF may be scanned.")
