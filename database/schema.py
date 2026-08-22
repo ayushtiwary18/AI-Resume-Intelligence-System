@@ -21,8 +21,9 @@ def create_tables():
             original_filename TEXT NOT NULL,
             stored_filename TEXT NOT NULL,
             file_path TEXT NOT NULL,
+            file_hash TEXT UNIQUE NOT NULL,
             upload_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
+        )
     """)
 
     conn.commit()
