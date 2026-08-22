@@ -5,7 +5,9 @@ import hashlib
 
 from database.operations import (
     save_resume,
-    get_resume_by_hash
+    get_resume_by_hash,
+    save_extracted_data,
+    get_extracted_data_by_resume_id
 )
 from resume_parser.extractor import extract_text
 from preprocessing.cleaner import clean_text
@@ -16,7 +18,7 @@ from resume_parser.info_extractor import (
 )
 from resume_parser.skill_extractor import extract_skills
 from resume_parser.education_extractor import extract_education
-#from resume_parser.experience_extractor import extract_experience
+from resume_parser.experience_extractor import extract_experience
 
 st.set_page_config(
     page_title="AI Resume Intelligence System",
@@ -48,7 +50,7 @@ if uploaded_file:
     if existing_resume:
 
         st.info("This resume already exists in the system.")
-
+        resume_id = existing_resume[0]
         file_path = existing_resume[3]
 
     else:
@@ -65,16 +67,15 @@ if uploaded_file:
             f.write(file_bytes)
 
         # Save metadata
-        save_resume(
+        resume_id = save_resume(
             uploaded_file.name,
             unique_filename,
             file_path,
             file_hash
         )
 
-        st.success("Resume uploaded and saved successfully!")
+        st.success("Resume uploaded successfully!")
 
-    # Extract text
     resume_text = extract_text(file_path)
     cleaned_text = clean_text(resume_text)
 
@@ -85,6 +86,28 @@ if uploaded_file:
     skills = extract_skills(cleaned_text)
     education = extract_education(cleaned_text)
     experience = extract_experience(cleaned_text)
+
+    existing_extracted_data = (
+        get_extracted_data_by_resume_id(resume_id)
+    )
+
+    if not existing_extracted_data:
+
+        save_extracted_data(
+            resume_id,
+            name,
+            email,
+            phone,
+            skills,
+            education,
+            experience
+        )
+
+        st.success("Extracted data saved to database.")
+
+    else:
+
+        st.info("Extracted data already exists.")
 
     if resume_text.strip():
 

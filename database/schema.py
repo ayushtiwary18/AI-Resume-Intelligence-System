@@ -26,10 +26,24 @@ def create_tables():
         )
     """)
 
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS extracted_resume_data (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            resume_id INTEGER NOT NULL,
+            name TEXT,
+            email TEXT,
+            phone TEXT,
+            skills TEXT,
+            education TEXT,
+            experience TEXT,
+            FOREIGN KEY (resume_id) REFERENCES resumes(resume_id)
+        )
+    """)
+
     conn.commit()
     conn.close()
 
 
 if __name__ == "__main__":
     create_tables()
-    print("Database and Users table created successfully.")
+    print("Database table created successfully.")
