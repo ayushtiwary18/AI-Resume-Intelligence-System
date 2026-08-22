@@ -84,7 +84,7 @@ if uploaded_file:
 
     skills = extract_skills(cleaned_text)
     education = extract_education(cleaned_text)
-    #experience = extract_experience(cleaned_text)
+    experience = extract_experience(cleaned_text)
 
     if resume_text.strip():
 
@@ -125,12 +125,12 @@ if uploaded_file:
         else:
             st.warning("No education details found.")  
 
-        # st.subheader("Experience")
-        # if experience:
-        #     for item in experience:
-        #         st.write("•", item)
-        # else:
-        #     st.warning("No experience duration found.")
+        st.subheader("Experience")
+        if experience:
+            for item in experience:
+                st.write("•", item)
+        else:
+            st.warning("No experience duration found.")
 
     else:
         st.error("No readable text found. The PDF may be scanned.")

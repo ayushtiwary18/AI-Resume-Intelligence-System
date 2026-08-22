@@ -1,23 +1,27 @@
-# import re
+import re
 
 
-# def extract_experience(text):
+def extract_experience(text):
 
-#     text = text.lower()
+    patterns = [
+        r'(\d+)\+?\s*years?\s*(?:of)?\s*experience',
+        r'(\d+)\+?\s*yrs?\s*(?:of)?\s*experience',
+        r'experience\s*[:\-]?\s*(\d+)\+?\s*years?',
+    ]
 
-#     patterns = [
-#         r'\b\d+\+?\s+years?\b',
-#         r'\b\d+\+?\s+yrs?\b',
-#         r'\b\d+\s*-\s*\d+\s+years?\b'
-#     ]
+    experience = []
 
-#     experience = []
+    for pattern in patterns:
+        matches = re.findall(
+            pattern,
+            text,
+            re.IGNORECASE
+        )
 
-#     for pattern in patterns:
-#         matches = re.findall(pattern, text)
+        for match in matches:
+            value = f"{match}+ Years"
+            
+            if value not in experience:
+                experience.append(value)
 
-#         for match in matches:
-#             if match not in experience:
-#                 experience.append(match)
-
-#     return experience
+    return experience

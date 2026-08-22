@@ -4,6 +4,7 @@ venv/
 # Python Cache
 __pycache__/
 *.py[cod]
+*.pyo
 
 # SQLite Database
 *.db
