@@ -19,6 +19,8 @@ from resume_parser.info_extractor import (
 from resume_parser.skill_extractor import extract_skills
 from resume_parser.education_extractor import extract_education
 from resume_parser.experience_extractor import extract_experience
+from ats.job_matcher import extract_required_skills
+from ats.scorer import calculate_ats_score
 
 st.set_page_config(
     page_title="AI Resume Intelligence System",
@@ -154,6 +156,47 @@ if uploaded_file:
                 st.write("•", item)
         else:
             st.warning("No experience duration found.")
+
+        st.subheader("Job Description")
+
+        job_description = st.text_area(
+            "Paste the job description here",
+            height=250,
+            placeholder="Example: We are looking for a Data Scientist with Python, SQL, Pandas and Machine Learning skills..."
+        )
+        if job_description.strip():
+
+            required_skills = extract_required_skills(
+                job_description
+            )
+
+            score, matched_skills, missing_skills = calculate_ats_score(
+                skills,
+                required_skills
+            )
+
+            st.subheader("ATS Analysis")
+
+            st.metric(
+                "ATS Skill Match Score",
+                f"{score}%"
+            )
+
+            st.write("### Matched Skills")
+
+            if matched_skills:
+                for skill in matched_skills:
+                    st.write("✓", skill.title())
+            else:
+                st.write("No matching skills found.")
+
+            st.write("### Missing Skills")
+
+            if missing_skills:
+                for skill in missing_skills:
+                    st.write("✗", skill.title())
+            else:
+                st.write("No missing skills.")
 
     else:
         st.error("No readable text found. The PDF may be scanned.")
