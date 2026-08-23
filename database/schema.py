@@ -40,6 +40,19 @@ def create_tables():
         )
     """)
 
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS ats_analysis (
+            analysis_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            resume_id INTEGER NOT NULL,
+            job_description TEXT NOT NULL,
+            ats_score REAL NOT NULL,
+            matched_skills TEXT,
+            missing_skills TEXT,
+            analysis_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (resume_id) REFERENCES resumes(resume_id)
+        )
+    """)
+
     conn.commit()
     conn.close()
 

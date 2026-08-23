@@ -95,3 +95,56 @@ def get_extracted_data_by_resume_id(resume_id):
     conn.close()
 
     return data
+
+def save_ats_analysis(
+    resume_id,
+    job_description,
+    ats_score,
+    matched_skills,
+    missing_skills
+):
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        INSERT INTO ats_analysis
+        (
+            resume_id,
+            job_description,
+            ats_score,
+            matched_skills,
+            missing_skills
+        )
+        VALUES (?, ?, ?, ?, ?)
+    """, (
+        resume_id,
+        job_description,
+        ats_score,
+        ", ".join(matched_skills),
+        ", ".join(missing_skills)
+    ))
+
+    conn.commit()
+    conn.close()
+
+def get_existing_ats_analysis(resume_id, job_description):
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT *
+        FROM ats_analysis
+        WHERE resume_id = ?
+        AND job_description = ?
+        ORDER BY analysis_id DESC
+        LIMIT 1
+    """, (
+        resume_id,
+        job_description
+    ))
+
+    analysis = cursor.fetchone()
+
+    conn.close()
+
+    return analysis

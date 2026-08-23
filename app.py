@@ -7,7 +7,9 @@ from database.operations import (
     save_resume,
     get_resume_by_hash,
     save_extracted_data,
-    get_extracted_data_by_resume_id
+    get_extracted_data_by_resume_id,
+    save_ats_analysis,
+    get_existing_ats_analysis
 )
 from resume_parser.extractor import extract_text
 from preprocessing.cleaner import clean_text
@@ -164,39 +166,77 @@ if uploaded_file:
             height=250,
             placeholder="Example: We are looking for a Data Scientist with Python, SQL, Pandas and Machine Learning skills..."
         )
+
         if job_description.strip():
 
-            required_skills = extract_required_skills(
-                job_description
-            )
+            if st.button("Analyze Resume Against Job Description"):
 
-            score, matched_skills, missing_skills = calculate_ats_score(
-                skills,
-                required_skills
-            )
+                existing_analysis = get_existing_ats_analysis(
+                    resume_id,
+                    job_description
+                )
 
-            st.subheader("ATS Analysis")
+                if existing_analysis:
 
-            st.metric(
-                "ATS Skill Match Score",
-                f"{score}%"
-            )
+                    st.info("This resume has already been analyzed against this Job Description.")
 
-            st.write("### Matched Skills")
+                    score = existing_analysis["ats_score"]
 
-            if matched_skills:
-                for skill in matched_skills:
-                    st.write("✓", skill.title())
-            else:
-                st.write("No matching skills found.")
+                    matched_skills = (
+                        existing_analysis["matched_skills"].split(", ")
+                        if existing_analysis["matched_skills"]
+                        else []
+                    )
 
-            st.write("### Missing Skills")
+                    missing_skills = (
+                        existing_analysis["missing_skills"].split(", ")
+                        if existing_analysis["missing_skills"]
+                        else []
+                    )
 
-            if missing_skills:
-                for skill in missing_skills:
-                    st.write("✗", skill.title())
-            else:
-                st.write("No missing skills.")
+                else:
+
+                    required_skills = extract_required_skills(
+                        job_description
+                    )
+
+                    score, matched_skills, missing_skills = calculate_ats_score(
+                        skills,
+                        required_skills
+                    )
+
+                    save_ats_analysis(
+                        resume_id,
+                        job_description,
+                        score,
+                        matched_skills,
+                        missing_skills
+                    )
+
+                    st.success("New ATS analysis saved to database.")
+
+                st.subheader("ATS Analysis")
+
+                st.metric(
+                    "ATS Skill Match Score",
+                    f"{score}%"
+                )
+
+                st.write("### Matched Skills")
+
+                if matched_skills:
+                    for skill in matched_skills:
+                        st.write("✓", skill.title())
+                else:
+                    st.write("No matching skills found.")
+
+                st.write("### Missing Skills")
+
+                if missing_skills:
+                    for skill in missing_skills:
+                        st.write("✗", skill.title())
+                else:
+                    st.write("No missing skills.")
 
     else:
         st.error("No readable text found. The PDF may be scanned.")
