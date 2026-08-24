@@ -23,6 +23,7 @@ from resume_parser.education_extractor import extract_education
 from resume_parser.experience_extractor import extract_experience
 from ats.job_matcher import extract_required_skills
 from ats.scorer import calculate_ats_score
+from ats.recommendations import generate_recommendations
 
 st.set_page_config(
     page_title="AI Resume Intelligence System",
@@ -237,6 +238,17 @@ if uploaded_file:
                         st.write("✗", skill.title())
                 else:
                     st.write("No missing skills.")
+
+                recommendations = generate_recommendations(
+                    score,
+                    matched_skills,
+                    missing_skills
+                )
+
+                st.subheader("Recommendations")
+
+                for recommendation in recommendations:
+                    st.write("•", recommendation)
 
     else:
         st.error("No readable text found. The PDF may be scanned.")
