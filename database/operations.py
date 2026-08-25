@@ -148,3 +148,26 @@ def get_existing_ats_analysis(resume_id, job_description):
     conn.close()
 
     return analysis
+
+def get_ats_analyses_by_resume_id(resume_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT
+            analysis_id,
+            job_description,
+            ats_score,
+            matched_skills,
+            missing_skills,
+            analysis_time
+        FROM ats_analysis
+        WHERE resume_id = ?
+        ORDER BY analysis_time DESC
+    """, (resume_id,))
+
+    analyses = cursor.fetchall()
+
+    conn.close()
+
+    return analyses

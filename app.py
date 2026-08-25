@@ -24,6 +24,7 @@ from resume_parser.experience_extractor import extract_experience
 from ats.job_matcher import extract_required_skills
 from ats.scorer import calculate_ats_score
 from ats.recommendations import generate_recommendations
+from database.operations import get_ats_analyses_by_resume_id
 
 st.set_page_config(
     page_title="AI Resume Intelligence System",
@@ -249,6 +250,45 @@ if uploaded_file:
 
                 for recommendation in recommendations:
                     st.write("•", recommendation)
+
+                st.subheader("ATS Analysis History")
+
+                analysis_history = get_ats_analyses_by_resume_id(resume_id)
+
+                if analysis_history:
+
+                    for analysis in analysis_history:
+
+                        st.write(
+                            f"**Analysis {analysis['analysis_id']}**"
+                        )
+
+                        st.write(
+                            f"ATS Score: {analysis['ats_score']}%"
+                        )
+
+                        st.write(
+                            f"Analyzed On: {analysis['analysis_time']}"
+                        )
+
+                        st.write(
+                            "Matched Skills:",
+                            analysis["matched_skills"]
+                            if analysis["matched_skills"]
+                            else "None"
+                        )
+
+                        st.write(
+                            "Missing Skills:",
+                            analysis["missing_skills"]
+                            if analysis["missing_skills"]
+                            else "None"
+                        )
+
+                        st.divider()
+
+                else:
+                    st.info("No previous ATS analyses found.")
 
     else:
         st.error("No readable text found. The PDF may be scanned.")
