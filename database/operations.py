@@ -171,3 +171,24 @@ def get_ats_analyses_by_resume_id(resume_id):
     conn.close()
 
     return analyses
+
+def get_all_resumes():
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT
+            resume_id,
+            original_filename,
+            stored_filename,
+            file_path,
+            upload_time
+        FROM resumes
+        ORDER BY upload_time DESC
+    """)
+
+    resumes = cursor.fetchall()
+
+    conn.close()
+
+    return resumes

@@ -9,7 +9,9 @@ from database.operations import (
     save_extracted_data,
     get_extracted_data_by_resume_id,
     save_ats_analysis,
-    get_existing_ats_analysis
+    get_existing_ats_analysis,
+    get_ats_analyses_by_resume_id,
+    get_all_resumes
 )
 from resume_parser.extractor import extract_text
 from preprocessing.cleaner import clean_text
@@ -38,6 +40,74 @@ uploaded_file = st.file_uploader(
     "Upload Resume",
     type=["pdf"]
 )
+
+st.subheader("Select Resume")
+
+stored_resumes = get_all_resumes()
+
+if stored_resumes:
+
+    resume_options = {
+        f"{resume['original_filename']} | "
+        f"Uploaded: {resume['upload_time']}": resume
+        for resume in stored_resumes
+    }
+
+    selected_resume_label = st.selectbox(
+        "Choose a resume",
+        list(resume_options.keys())
+    )
+
+    selected_resume = resume_options[selected_resume_label]
+
+    resume_id = selected_resume["resume_id"]
+    file_path = selected_resume["file_path"]
+
+    st.write("Resume ID:", resume_id)
+    st.write("File:", selected_resume["original_filename"])
+
+    if st.button("Use Selected Resume"):
+
+        if os.path.exists(file_path):
+
+            resume_text = extract_text(file_path)
+            cleaned_text = clean_text(resume_text)
+
+            email = extract_email(resume_text)
+            phone = extract_phone(resume_text)
+            name = extract_name(resume_text)
+            skills = extract_skills(cleaned_text)
+            education = extract_education(cleaned_text)
+
+            st.success("Selected resume loaded successfully!")
+
+            st.subheader("Resume Information")
+
+            st.write("Name:", name if name else "Not Found")
+            st.write("Email:", email if email else "Not Found")
+            st.write("Phone:", phone if phone else "Not Found")
+
+            st.subheader("Extracted Skills")
+
+            if skills:
+                for skill in skills:
+                    st.write("•", skill.title())
+            else:
+                st.warning("No skills found.")
+
+            st.subheader("Education")
+
+            if education:
+                for degree in education:
+                    st.write("•", degree.upper())
+            else:
+                st.warning("No education details found.")
+
+        else:
+            st.error("Resume file not found.")
+
+else:
+    st.info("No resumes stored yet.")
 
 if uploaded_file:
 
@@ -219,26 +289,45 @@ if uploaded_file:
 
                 st.subheader("ATS Analysis")
 
-                st.metric(
-                    "ATS Skill Match Score",
+                col1, col2, col3 = st.columns(3)
+
+                col1.metric(
+                    "ATS Match Score",
                     f"{score}%"
                 )
 
-                st.write("### Matched Skills")
+                col2.metric(
+                    "Matched Skills",
+                    len(matched_skills)
+                )
 
-                if matched_skills:
-                    for skill in matched_skills:
-                        st.write("✓", skill.title())
-                else:
-                    st.write("No matching skills found.")
+                col3.metric(
+                    "Missing Skills",
+                    len(missing_skills)
+                )
 
-                st.write("### Missing Skills")
+                matched_col, missing_col = st.columns(2)
 
-                if missing_skills:
-                    for skill in missing_skills:
-                        st.write("✗", skill.title())
-                else:
-                    st.write("No missing skills.")
+                with matched_col:
+
+                    st.subheader("Matched Skills")
+
+                    if matched_skills:
+                        for skill in matched_skills:
+                            st.write("✓", skill.title())
+                    else:
+                        st.info("No matching skills found.")
+
+
+                with missing_col:
+
+                    st.subheader("Missing Skills")
+
+                    if missing_skills:
+                        for skill in missing_skills:
+                            st.write("✗", skill.title())
+                    else:
+                        st.info("No missing skills.")
 
                 recommendations = generate_recommendations(
                     score,
