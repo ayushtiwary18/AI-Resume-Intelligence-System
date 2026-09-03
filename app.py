@@ -7,11 +7,9 @@ from database.operations import (
     save_resume,
     get_resume_by_hash,
     save_extracted_data,
-    get_extracted_data_by_resume_id,
-    save_ats_analysis,
-    get_existing_ats_analysis,
     get_ats_analyses_by_resume_id,
-    get_all_resumes
+    get_all_resumes,
+    delete_resume
 )
 from resume_parser.extractor import extract_text
 from preprocessing.cleaner import clean_text
@@ -65,6 +63,16 @@ if stored_resumes:
 
     st.write("Resume ID:", resume_id)
     st.write("File:", selected_resume["original_filename"])
+    
+    if st.button("Delete Selected Resume"):
+
+        result = delete_resume(resume_id)
+
+        if result:
+            st.success("Resume deleted successfully.")
+            st.rerun()
+        else:
+            st.error("Resume could not be deleted.")
 
     if st.button("Use Selected Resume"):
 

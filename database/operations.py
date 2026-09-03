@@ -1,3 +1,4 @@
+import os
 from database.connection import get_connection
 
 
@@ -192,3 +193,49 @@ def get_all_resumes():
     conn.close()
 
     return resumes
+
+def delete_resume(resume_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    # Get the file path before deleting the database record
+    cursor.execute("""
+        SELECT file_path
+        FROM resumes
+        WHERE resume_id = ?
+    """, (resume_id,))
+
+    resume = cursor.fetchone()
+
+    if not resume:
+        conn.close()
+        return False
+
+    file_path = resume["file_path"]
+
+    # Delete related extracted data
+    cursor.execute("""
+        DELETE FROM extracted_resume_data
+        WHERE resume_id = ?
+    """, (resume_id,))
+
+    # Delete related ATS analyses
+    cursor.execute("""
+        DELETE FROM ats_analysis
+        WHERE resume_id = ?
+    """, (resume_id,))
+
+    # Delete resume record
+    cursor.execute("""
+        DELETE FROM resumes
+        WHERE resume_id = ?
+    """, (resume_id,))
+
+    conn.commit()
+    conn.close()
+
+    # Delete the actual PDF
+    if os.path.exists(file_path):
+        os.remove(file_path)
+
+    return True
