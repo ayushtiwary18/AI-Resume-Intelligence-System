@@ -1,12 +1,14 @@
 import streamlit as st
 import os
 import uuid
-import hashlib
 
 from database.operations import (
     save_resume,
     get_resume_by_hash,
     save_extracted_data,
+    get_extracted_data_by_resume_id,
+    save_ats_analysis,
+    get_existing_ats_analysis,
     get_ats_analyses_by_resume_id,
     get_all_resumes,
     delete_resume
@@ -25,6 +27,7 @@ from ats.job_matcher import extract_required_skills
 from ats.scorer import calculate_ats_score
 from ats.recommendations import generate_recommendations
 from database.operations import get_ats_analyses_by_resume_id
+from resume_parser.file_hash import calculate_file_hash
 
 st.set_page_config(
     page_title="AI Resume Intelligence System",
@@ -122,11 +125,11 @@ if uploaded_file:
     upload_folder = "uploads/resumes"
     os.makedirs(upload_folder, exist_ok=True)
 
-    # Get file bytes
+    # Get uploaded file bytes
     file_bytes = uploaded_file.getvalue()
 
-    # Create unique hash for the uploaded file
-    file_hash = hashlib.sha256(file_bytes).hexdigest()
+    # Calculate hash directly from file bytes
+    file_hash = calculate_file_hash(file_bytes)
 
     # Check whether this exact resume already exists
     existing_resume = get_resume_by_hash(file_hash)
@@ -134,11 +137,13 @@ if uploaded_file:
     if existing_resume:
 
         st.info("This resume already exists in the system.")
-        resume_id = existing_resume[0]
-        file_path = existing_resume[3]
+
+        resume_id = existing_resume["resume_id"]
+        file_path = existing_resume["file_path"]
 
     else:
 
+        # Create unique filename
         unique_filename = f"{uuid.uuid4()}.pdf"
 
         file_path = os.path.join(
@@ -158,8 +163,9 @@ if uploaded_file:
             file_hash
         )
 
-        st.success("Resume uploaded successfully!")
+        st.success("New resume uploaded and saved successfully!")
 
+    # Extract text
     resume_text = extract_text(file_path)
     cleaned_text = clean_text(resume_text)
 
