@@ -284,15 +284,63 @@ if active_resume_id is not None:
                 active_resume_id
             )
         )
-
-        analysis_history = (
-            get_ats_analyses_by_resume_id(
-                active_resume_id
-            )
-        )
-
+    
         skill_count = 0
         education_count = 0
+
+        st.subheader("ATS Score History")
+
+        analysis_history = get_ats_analyses_by_resume_id(
+            active_resume_id
+        )
+
+        if analysis_history:
+
+            for analysis in analysis_history:
+
+                with st.container(border=True):
+
+                    st.write(
+                        f"### Analysis {analysis['analysis_id']}"
+                    )
+
+                    col1, col2 = st.columns(2)
+
+                    with col1:
+                        st.metric(
+                            "ATS Score",
+                            f"{analysis['ats_score']}%"
+                        )
+
+                    with col2:
+                        st.write("**Analyzed On:**")
+                        st.write(
+                            analysis["analysis_time"]
+                        )
+
+                    st.write("**Matched Skills:**")
+
+                    if analysis["matched_skills"]:
+                        st.write(
+                            analysis["matched_skills"]
+                        )
+                    else:
+                        st.write("None")
+
+                    st.write("**Missing Skills:**")
+
+                    if analysis["missing_skills"]:
+                        st.write(
+                            analysis["missing_skills"]
+                        )
+                    else:
+                        st.write("None")
+        else:
+
+            st.info(
+                "No ATS analyses found for this resume."
+            )
+
 
         if extracted_data:
 
