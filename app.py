@@ -585,6 +585,11 @@ if active_resume_id is not None:
                         len(missing_skills)
                     )
 
+                    st.progress(
+                        int(score) / 100,
+                        text=f"ATS Match Score: {score}%"
+                    )
+
                     matched_col, missing_col = (
                         st.columns(2)
                     )
