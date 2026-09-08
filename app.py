@@ -568,7 +568,11 @@ if active_resume_id is not None:
                         "ATS Analysis"
                     )
 
-                    col1, col2, col3 = st.columns(3)
+                    total_required_skills = (
+                        len(matched_skills) + len(missing_skills)
+                    )
+
+                    col1, col2, col3, col4 = st.columns(4)
 
                     col1.metric(
                         "ATS Match Score",
@@ -576,11 +580,16 @@ if active_resume_id is not None:
                     )
 
                     col2.metric(
+                        "Required Skills",
+                        total_required_skills
+                    )
+
+                    col3.metric(
                         "Matched Skills",
                         len(matched_skills)
                     )
 
-                    col3.metric(
+                    col4.metric(
                         "Missing Skills",
                         len(missing_skills)
                     )
@@ -589,6 +598,33 @@ if active_resume_id is not None:
                         int(score) / 100,
                         text=f"ATS Match Score: {score}%"
                     )
+
+                    st.subheader("Skill Match Breakdown")
+
+                    if total_required_skills > 0:
+
+                        match_percentage = (
+                            len(matched_skills)
+                            / total_required_skills
+                        ) * 100
+
+                        st.write(
+                            f"Your resume matches "
+                            f"{len(matched_skills)} out of "
+                            f"{total_required_skills} required skills."
+                        )
+
+                        st.progress(
+                            int(match_percentage) / 100,
+                            text=f"Skill Match: {match_percentage:.1f}%"
+                        )
+
+                    else:
+
+                        st.info(
+                            "No required skills were identified "
+                            "from the job description."
+                        )
 
                     matched_col, missing_col = (
                         st.columns(2)
