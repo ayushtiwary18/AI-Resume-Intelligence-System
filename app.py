@@ -24,6 +24,7 @@ from resume_parser.skill_extractor import extract_skills
 from resume_parser.education_extractor import extract_education
 from resume_parser.experience_extractor import extract_experience
 from ats.job_matcher import extract_required_skills
+from ats.jd_analyzer import extract_jd_skills
 from ats.scorer import calculate_ats_score
 from ats.recommendations import generate_recommendations
 from resume_parser.file_hash import calculate_file_hash
@@ -536,11 +537,15 @@ if active_resume_id is not None:
                             else []
                         )
                     else:
-                        required_skills = (
-                            extract_required_skills(
-                                job_description
-                            )
-                        )
+                        required_skills = extract_jd_skills(job_description)
+
+                        st.subheader("Detected Job Description Skills")
+
+                        if required_skills:
+                            for skill in required_skills:
+                                st.write("•", skill.title())
+                        else:
+                            st.warning("No recognized skills were found in the job description.")
 
                         (
                             score,
