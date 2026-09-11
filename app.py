@@ -25,6 +25,7 @@ from resume_parser.education_extractor import extract_education
 from resume_parser.experience_extractor import extract_experience
 from ats.job_matcher import extract_required_skills
 from ats.jd_analyzer import extract_jd_skills
+from ats.skill_gap_analyzer import analyze_skill_gap
 from ats.scorer import calculate_ats_score
 from ats.recommendations import generate_recommendations
 from resume_parser.file_hash import calculate_file_hash
@@ -546,6 +547,33 @@ if active_resume_id is not None:
                                 st.write("•", skill.title())
                         else:
                             st.warning("No recognized skills were found in the job description.")
+
+                        skill_gap = analyze_skill_gap(
+                            active_skills,
+                            required_skills
+                        )
+
+                        st.subheader("Skill Gap Analysis")
+
+                        st.write(
+                            f"Your resume matches "
+                            f"{len(skill_gap['matched_skills'])} out of "
+                            f"{len(required_skills)} required skills."
+                        )
+
+                        col1, col2 = st.columns(2)
+
+                        with col1:
+                            st.metric(
+                                "Skill Match",
+                                f"{skill_gap['match_percentage']}%"
+                            )
+
+                        with col2:
+                            st.metric(
+                                "Skill Gap",
+                                f"{skill_gap['gap_percentage']}%"
+                            )
 
                         (
                             score,
