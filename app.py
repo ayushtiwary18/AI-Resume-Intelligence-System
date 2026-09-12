@@ -26,6 +26,7 @@ from resume_parser.experience_extractor import extract_experience
 from ats.job_matcher import extract_required_skills
 from ats.jd_analyzer import extract_jd_skills
 from ats.skill_gap_analyzer import analyze_skill_gap
+from ats.jd_skill_importance import analyze_skill_importance
 from ats.scorer import calculate_ats_score
 from ats.recommendations import generate_recommendations
 from resume_parser.file_hash import calculate_file_hash
@@ -543,11 +544,38 @@ if active_resume_id is not None:
                         st.subheader("Detected Job Description Skills")
 
                         if required_skills:
-                            for skill in required_skills:
-                                st.write("•", skill.title())
-                        else:
-                            st.warning("No recognized skills were found in the job description.")
 
+                            skill_importance = analyze_skill_importance(
+                                job_description,
+                                required_skills
+                            )
+
+                            for skill in required_skills:
+
+                                skill_data = skill_importance.get(
+                                    skill.lower(),
+                                    {}
+                                )
+
+                                count = skill_data.get("count", 0)
+                                importance = skill_data.get(
+                                    "importance",
+                                    "Normal"
+                                )
+
+                                st.write(
+                                    f"• **{skill.title()}** — "
+                                    f"{importance} Importance "
+                                    f"({count} occurrence(s))"
+                                )
+
+                        else:
+
+                            st.warning(
+                                "No recognized skills were found "
+                                "in the job description."
+                            )
+                            
                         skill_gap = analyze_skill_gap(
                             active_skills,
                             required_skills
