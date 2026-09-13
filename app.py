@@ -27,13 +27,13 @@ from ats.job_matcher import extract_required_skills
 from ats.jd_analyzer import extract_jd_skills
 from ats.skill_gap_analyzer import analyze_skill_gap
 from ats.jd_skill_importance import analyze_skill_importance
+from ats.semantic_matcher import calculate_semantic_similarity
 from ats.scorer import calculate_ats_score
 from ats.recommendations import generate_recommendations
 from resume_parser.file_hash import calculate_file_hash
 
 st.set_page_config(
     page_title="AI Resume Intelligence System",
-    page_icon="📄",
     layout="wide"
 )
 
@@ -515,6 +515,11 @@ if active_resume_id is not None:
                             "analyzed against this Job Description."
                         )
 
+                        semantic_similarity = calculate_semantic_similarity(
+                            active_resume_text,
+                            job_description
+                        )
+
                         score = existing_analysis[
                             "ats_score"
                         ]
@@ -611,7 +616,10 @@ if active_resume_id is not None:
                             active_skills,
                             required_skills
                         )
-
+                        semantic_similarity = calculate_semantic_similarity(
+                            active_resume_text,
+                            job_description
+                        )
 
                         save_ats_analysis(
                             active_resume_id,
@@ -627,6 +635,12 @@ if active_resume_id is not None:
 
                     st.subheader(
                         "ATS Analysis"
+                    )
+                    st.subheader("Resume-JD Semantic Similarity")
+
+                    st.metric(
+                        "Semantic Similarity",
+                        f"{semantic_similarity}%"
                     )
 
                     total_required_skills = (
