@@ -30,6 +30,7 @@ from ats.jd_skill_importance import analyze_skill_importance
 from ats.semantic_matcher import calculate_semantic_similarity
 from ats.scorer import calculate_ats_score
 from ats.recommendations import generate_recommendations
+from ats.relevant_resume_text import build_relevant_resume_text
 from resume_parser.file_hash import calculate_file_hash
 
 st.set_page_config(
@@ -515,8 +516,15 @@ if active_resume_id is not None:
                             "analyzed against this Job Description."
                         )
 
-                        semantic_similarity = calculate_semantic_similarity(
+                        relevant_resume_text = build_relevant_resume_text(
                             active_resume_text,
+                            active_skills,
+                            active_education,
+                            active_experience
+                        )
+
+                        semantic_similarity = calculate_semantic_similarity(
+                            relevant_resume_text,
                             job_description
                         )
 
