@@ -32,6 +32,7 @@ from ats.scorer import calculate_ats_score
 from ats.recommendations import generate_recommendations
 from ats.relevant_resume_text import build_relevant_resume_text
 from resume_parser.file_hash import calculate_file_hash
+from ats.hybrid_matcher import calculate_hybrid_match_score
 
 st.set_page_config(
     page_title="AI Resume Intelligence System",
@@ -528,6 +529,12 @@ if active_resume_id is not None:
                             job_description
                         )
 
+                        score = existing_analysis["ats_score"]
+                        hybrid_score = calculate_hybrid_match_score(
+                            score,
+                            semantic_similarity
+                        )
+
                         score = existing_analysis[
                             "ats_score"
                         ]
@@ -644,6 +651,22 @@ if active_resume_id is not None:
                     st.subheader(
                         "ATS Analysis"
                     )
+                    st.subheader("Resume-JD Match")
+
+                    col1, col2 = st.columns(2)
+
+                    with col1:
+                        st.metric(
+                            "Semantic Similarity",
+                            f"{semantic_similarity}%"
+                        )
+
+                    with col2:
+                        st.metric(
+                            "Hybrid Match Score",
+                            f"{hybrid_score}%"
+                        )
+                        
                     st.subheader("Resume-JD Semantic Similarity")
 
                     st.metric(
