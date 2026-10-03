@@ -33,6 +33,7 @@ from ats.recommendations import generate_recommendations
 from ats.relevant_resume_text import build_relevant_resume_text
 from resume_parser.file_hash import calculate_file_hash
 from ats.hybrid_matcher import calculate_hybrid_match_score
+from ats.skill_normalizer import normalize_skills
 
 st.set_page_config(
     page_title="AI Resume Intelligence System",
@@ -272,6 +273,10 @@ if active_resume_id is not None:
 
         active_skills = extract_skills(
             active_cleaned_text
+        )
+
+        active_skills = normalize_skills(
+            active_skills
         )
 
         active_education = extract_education(
@@ -560,6 +565,10 @@ if active_resume_id is not None:
                         )
                     else:
                         required_skills = extract_jd_skills(job_description)
+
+                        required_skills = normalize_skills(
+                            required_skills
+                        )
 
                         st.subheader("Detected Job Description Skills")
 
